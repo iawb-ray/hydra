@@ -61,8 +61,8 @@ services:
       - HYDRA_ADMIN_URL=http://hydra:4445
     image: oryd/hydra-login-consent-node:v1.11.8
     labels:
-      caddy_0: consent.hydra.hxdcloud.com
-      caddy_0.reverse_proxy: "{{upstreams 3000}}"
+      caddy_3: consent.hydra.hxdcloud.com
+      caddy_3.reverse_proxy: "{{upstreams 3000}}"
 #     ports:
 #       - "3000:3000"
     restart: unless-stopped
