@@ -13,10 +13,17 @@ version: '3.7'
 services:
   hydra:
     image: oryd/hydra:v1.11.8
-    ports:
-      - "4444:4444" # Public port
-      - "4445:4445" # Admin port
-      - "5555:5555" # Port for hydra token user
+    labels:
+      caddy_0: hydra.hxdcloud.com
+      caddy_0.reverse_proxy: "{{upstreams 4444}}"
+      caddy_1: admin.hydra.hxdcloud.com
+      caddy_1.reverse_proxy: "{{upstreams 4445}}"
+      caddy_2: token.hydra.hxdcloud.com
+      caddy_2.reverse_proxy: "{{upstreams 5555}}"
+#     ports:
+#       - "4444:4444" # Public port
+#       - "4445:4445" # Admin port
+#       - "5555:5555" # Port for hydra token user
     command: serve -c /etc/config/hydra/hydra.yml all --dangerous-force-http
     volumes:
       - type: volume
@@ -32,7 +39,7 @@ services:
     depends_on:
       - hydra-migrate
     networks:
-      - intranet
+      - caddy
   hydra-migrate:
     image: oryd/hydra:v1.11.8
     environment:
@@ -48,17 +55,21 @@ services:
         target: /etc/config/hydra
     restart: on-failure
     networks:
-      - intranet
+      - caddy
   consent:
     environment:
       - HYDRA_ADMIN_URL=http://hydra:4445
     image: oryd/hydra-login-consent-node:v1.11.8
-    ports:
-      - "3000:3000"
+    labels:
+      caddy_0: consent.hydra.hxdcloud.com
+      caddy_0.reverse_proxy: "{{upstreams 3000}}"
+#     ports:
+#       - "3000:3000"
     restart: unless-stopped
     networks:
-      - intranet
+      - caddy
 networks:
-  intranet:
+  caddy:
+    external: true
 volumes:
   hydra-sqlite:
